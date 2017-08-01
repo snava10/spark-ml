@@ -24,6 +24,7 @@ class ClusteringTest {
 	@Test
 	def testClusteringKmeans() = {
 		val testFile: String = getClass.getResource("/kmeans_data.txt").getPath()
-		val res = Clustering.kmeans(spark, testFile)
+		val res_tuple = Clustering.kmeans_libsvm(spark, testFile)
+		println("Error %d".format(res_tuple._1))
 	}
 }
