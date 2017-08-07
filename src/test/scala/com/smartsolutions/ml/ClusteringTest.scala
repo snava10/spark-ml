@@ -25,6 +25,18 @@ class ClusteringTest {
 	def testClusteringKmeans() = {
 		val testFile: String = getClass.getResource("/kmeans_data.txt").getPath()
 		val res_tuple = Clustering.kmeans_libsvm(spark, testFile)
-		println("Error %d".format(res_tuple._1))
+		println("Error " + res_tuple._1)
+	}
+
+	@Test
+	def testClusteringKmeansCsv() = {
+		val testFile: String = getClass.getResource("/spend_data.csv").getPath()
+		val res_tuple = Clustering.kmeans_csv(spark, testFile)
+		println("Error " + res_tuple._1)
+	}
+
+	@Test
+	def testConvertIntoNumericDataFrame() = {
+
 	}
 }

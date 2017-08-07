@@ -1,6 +1,9 @@
 package com.smartsolutions.ml
+import java.sql.Timestamp
 
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
+import org.apache.spark.sql.functions.{udf, _}
+import org.apache.spark.sql.types.TimestampType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object Clustering {
@@ -42,7 +45,9 @@ object Clustering {
 			.option("header", "true") // Use first line of all files as header
 			.option("inferSchema", "true") // Automatically infer data types
 			.load(filename)
-		???
+
+		val ndf = convertIntoNumericDataFrame(spark, dataset)
+		kmeans(spark, ndf, 2)
 	}
 
 	/*
@@ -59,9 +64,20 @@ object Clustering {
 		???
 	}
 
-	def convertDatetimeToInt(spark: SparkSession, df: DataFrame): DataFrame = {
-
-		???
+	def convertIntoNumericDataFrame(spark: SparkSession, df: DataFrame): DataFrame = {
+		var res = df
+		def msFrom19700101() = udf((date:Timestamp) => date.getTime())
+		for(c <- df.columns){
+			res = res.schema(c).dataType match {
+				case TimestampType => df
+					.withColumn(c.replace(" ","") + "Hash", msFrom19700101()(col(c)).cast("Double"))
+					.drop(c)
+				case _ => df
+					.withColumn(c.replace(" ","") + "Hash", col(c).cast("Double"))
+					.drop(c)
+			}
+		}
+		res
 	}
 
 	def normalise(spark: SparkSession, df: DataFrame): DataFrame = {
@@ -71,5 +87,4 @@ object Clustering {
 	def toFeaturesVector(spark: SparkSession, df: DataFrame): DataFrame = {
 		???
 	}
-
 }
